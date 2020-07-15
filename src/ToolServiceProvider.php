@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use OptimistDigital\NovaSettings\Http\Middleware\Authorize;
+use OptimistDigital\NovaSettings\Http\Middleware\SettingsDomainExists;
 
 class ToolServiceProvider extends ServiceProvider
 {
@@ -48,7 +49,7 @@ class ToolServiceProvider extends ServiceProvider
     {
         if ($this->app->routesAreCached()) return;
 
-        Route::middleware(['nova', Authorize::class])
+        Route::middleware(['nova', Authorize::class, SettingsDomainExists::class])
             ->group(__DIR__ . '/../routes/api.php');
     }
 

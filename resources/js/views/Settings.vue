@@ -1,5 +1,5 @@
 <template>
-  <loading-view :loading="loading">
+  <loading-view :loading="loading" :key="$route.params.id">
     <form v-if="panels" @submit.prevent="update" autocomplete="off">
       <form-panel
         v-for="panel in panelsWithFields"
@@ -57,15 +57,27 @@ export default {
   async created() {
     this.getFields();
   },
+  watch: {
+    $route(to, from) {
+      if (to.params.id !== from.params.id) {
+        this.getFields();
+      }
+    }
+  },
   methods: {
     async getFields() {
       this.loading = true;
       this.fields = [];
 
+      let query = '/nova-vendor/nova-settings/settings?editing=true&editMode=update';
+      if (this.$route.params.id) {
+        query += `&domain=${this.$route.params.id}`;
+      }
+
       const {
         data: { fields, panels },
       } = await Nova.request()
-        .get('/nova-vendor/nova-settings/settings?editing=true&editMode=update')
+        .get(query)
         .catch(error => {
           if (error.response.status == 404) {
             this.$router.push({ name: '404' });
@@ -117,6 +129,7 @@ export default {
       return _.tap(new FormData(), formData => {
         _(this.fields).each(field => field.fill(formData));
         formData.append('_method', 'POST');
+        formData.append('domain', this.$route.params.id);
       });
     },
 

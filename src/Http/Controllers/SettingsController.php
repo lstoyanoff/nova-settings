@@ -18,7 +18,7 @@ class SettingsController extends Controller
 
     public function get(Request $request)
     {
-        $fields = $this->assignToPanels(__('Settings'), $this->availableFields());
+        $fields = $this->assignToPanels(__('Settings'), $this->availableFields($request->get('domain', '_')));
         $panels = $this->panelsWithDefaultLabel(__('Settings'), app(NovaRequest::class));
 
         $addResolveCallback = function (&$field) {
@@ -47,7 +47,7 @@ class SettingsController extends Controller
 
     public function save(NovaRequest $request)
     {
-        $fields = $this->availableFields();
+        $fields = $this->availableFields($request->get('domain', '_'));
 
         // NovaDependencyContainer support
         $fields = $fields->map(function ($field) {
@@ -104,13 +104,13 @@ class SettingsController extends Controller
         return response('', 204);
     }
 
-    protected function availableFields()
+    protected function availableFields($domain = '_')
     {
-        return new FieldCollection(($this->filter(NovaSettings::getFields())));
+        return new FieldCollection(($this->filter(NovaSettings::getFields($domain))));
     }
 
-    protected function fields(Request $request)
+    protected function fields(Request $request, $domain = '_')
     {
-        return NovaSettings::getFields();
+        return NovaSettings::getFields($domain);
     }
 }

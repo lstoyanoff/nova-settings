@@ -30,11 +30,14 @@ class NovaSettings extends Tool
      * @param array|callable $fields Array of fields/panels to be displayed or callable that returns an array.
      * @param array $casts Associative array same as Laravel's $casts on models.
      **/
-    public static function addSettingsFields($fields = [], $casts = [])
+    public static function addSettingsFields($fields = [], $casts = [], $domain = '_')
     {
+        self::$fields[ $domain ] = self::$fields[ $domain ] ?? [];
+        self::$casts[ $domain ] = self::$casts[ $domain ] ?? [];
+
         if (is_callable($fields)) $fields = [$fields];
-        self::$fields = array_merge(self::$fields, $fields ?? []);
-        self::$casts = array_merge(self::$casts, $casts ?? []);
+        self::$fields[ $domain ] = array_merge(self::$fields[ $domain ], $fields ?? []);
+        self::$casts[ $domain ] = array_merge(self::$casts[ $domain ], $casts ?? []);
     }
 
     /**
@@ -42,16 +45,16 @@ class NovaSettings extends Tool
      *
      * @param array $casts Casts same as Laravel's casts on a model.
      **/
-    public static function addCasts($casts = [])
+    public static function addCasts($casts = [], $domain = '_')
     {
-        self::$casts = array_merge(self::$casts, $casts);
+        self::$casts[ $domain ] = array_merge(self::$casts[ $domain ], $casts);
     }
 
-    public static function getFields()
+    public static function getFields($domain = '_')
     {
         $rawFields = array_map(function ($fieldItem) {
             return is_callable($fieldItem) ? call_user_func($fieldItem) : $fieldItem;
-        }, self::$fields);
+        }, self::$fields[ $domain ] ?? self::$fields);
 
         $fields = [];
         foreach ($rawFields as $rawField) {
@@ -62,9 +65,9 @@ class NovaSettings extends Tool
         return $fields;
     }
 
-    public static function getCasts()
+    public static function getCasts($domain = '_')
     {
-        return self::$casts;
+        return self::$casts[ $domain ];
     }
 
     public static function getSetting($settingKey, $default = null)
@@ -98,5 +101,10 @@ class NovaSettings extends Tool
     public static function getSettingsModel(): string
     {
         return config('nova-settings.models.settings', Settings::class);
+    }
+
+    public static function isDomainExists($domain)
+    {
+        return array_key_exists($domain, self::$fields);
     }
 }
