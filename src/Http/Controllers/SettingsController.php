@@ -109,8 +109,8 @@ class SettingsController extends Controller
         return new FieldCollection(($this->filter(NovaSettings::getFields($domain))));
     }
 
-    protected function fields(Request $request, $domain = '_')
+    protected function fields(Request $request)
     {
-        return NovaSettings::getFields($domain);
+        return NovaSettings::getFields($request->get('domain', '_'));
     }
 }
