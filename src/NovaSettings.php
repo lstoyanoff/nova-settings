@@ -33,11 +33,10 @@ class NovaSettings extends Tool
     public static function addSettingsFields($fields = [], $casts = [], $domain = '_')
     {
         self::$fields[ $domain ] = self::$fields[ $domain ] ?? [];
-        self::$casts[ $domain ] = self::$casts[ $domain ] ?? [];
 
         if (is_callable($fields)) $fields = [$fields];
         self::$fields[ $domain ] = array_merge(self::$fields[ $domain ], $fields ?? []);
-        self::$casts[ $domain ] = array_merge(self::$casts[ $domain ], $casts ?? []);
+        self::$casts = array_merge(self::$casts, $casts ?? []);
     }
 
     /**
@@ -45,9 +44,9 @@ class NovaSettings extends Tool
      *
      * @param array $casts Casts same as Laravel's casts on a model.
      **/
-    public static function addCasts($casts = [], $domain = '_')
+    public static function addCasts($casts = [])
     {
-        self::$casts[ $domain ] = array_merge(self::$casts[ $domain ], $casts);
+        self::$casts = array_merge(self::$casts, $casts);
     }
 
     public static function getFields($domain = '_')
@@ -65,9 +64,9 @@ class NovaSettings extends Tool
         return $fields;
     }
 
-    public static function getCasts($domain = '_')
+    public static function getCasts()
     {
-        return self::$casts[ $domain ];
+        return self::$casts;
     }
 
     public static function getSetting($settingKey, $default = null)
